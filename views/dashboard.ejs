@@ -1,0 +1,56 @@
+<div class="container">
+  <div class="row mt-4">
+    <div class="col-md">
+      <div class="card p-3">
+        <h1 class="mt-4">Dashboard</h1>
+        <hr />
+        <div class="row">
+          <div class="col">
+            <p class="lead mb-3">Welcome <%= user.name %></p>
+          </div>
+          <div class="col-md col-auto">
+            <a href="/users/logout" class="btn btn-secondary float-md-right">
+              Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mt-2 justify-content-start">
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <h3 class="card-header">Chat</h3>
+        <div class="card-body">
+          <form action="chat">
+            <div class="form-group">
+              <label for="exampleSelect1"><h6>Nama Lengkap</h6></label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                aria-describedby="emailHelp"
+                placeholder="Enter email"
+                value="<%= user.email %>"
+                readonly
+              />
+            </div>
+            <div class="form-group">
+              <label for="exampleSelect1"><h6>Choose Room</h6></label>
+              <select class="form-control" name="room" id="exampleSelect1">
+                <option value="javascript">Javascript</option>
+                <option value="php">PHP</option>
+                <option value="python">Python</option>
+                <option value="r">R</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary float-right">
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
