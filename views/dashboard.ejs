@@ -1,12 +1,38 @@
 <div class="container">
   <div class="row mt-4">
-    <div class="col-md">
+    <div class="col-md-12">
+      <h1 class="mt-4">Dashboard</h1>
       <div class="card p-3">
-        <h1 class="mt-4">Dashboard</h1>
-        <hr />
         <div class="row">
-          <div class="col">
-            <p class="lead mb-3">Welcome <%= user.name %></p>
+          <div class="col-md-8">
+            <div class="row">
+              <div class="col-md-auto">
+                <img class="border border-white" id="profile-picture"
+                width="120px" height="120px" style="object-fit: cover;" <%
+                if(user.profilePicturePath === undefined) { %> src="<%=
+                user.default_picture %>" <% } else { %> src="<%=
+                user.profilePicturePath %>" <% } %> alt="Foto Profile" srcset=""
+                />
+                <form
+                  action="/dashboard"
+                  method="POST"
+                  enctype="multipart/form-data"
+                >
+                  <input
+                    type="file"
+                    name="profilePicture"
+                    id="uploadProfilePicture"
+                    hidden
+                  />
+                </form>
+              </div>
+              <div class="col-md-8">
+                <p class="lead mb-3">
+                  <strong>Name : <%= user.name %></strong>
+                </p>
+                <%- include('partials/messages') %>
+              </div>
+            </div>
           </div>
           <div class="col-md col-auto">
             <a href="/users/logout" class="btn btn-secondary float-md-right">
@@ -20,11 +46,11 @@
   <div class="row mt-2 justify-content-start">
     <div class="col-md-6">
       <div class="card mb-3">
-        <h3 class="card-header">Chat</h3>
+        <h3 class="card-header">Chat Rooms</h3>
         <div class="card-body">
           <form action="chat">
             <div class="form-group">
-              <label for="exampleSelect1"><h6>Nama Lengkap</h6></label>
+              <label for="exampleSelect1"><h6>Email</h6></label>
               <input
                 type="email"
                 class="form-control"
@@ -52,5 +78,109 @@
         </div>
       </div>
     </div>
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <h3 class="card-header">Online Users</h3>
+        <div class="card-body" style="overflow-y: auto; height: 257px;">
+          <div class="row justify-content-center">
+            <button
+              type="button"
+              class="btn onlineUsers"
+              data-toggle="modal"
+              data-target="#exampleModal"
+            ></button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<div class="modal-dialog modal-dialog-scrollable">
+  <div
+    class="modal fade"
+    id="exampleModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Profile</h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Nama</li>
+            <li class="list-group-item">Dapibus ac facilisis in</li>
+            <li class="list-group-item">Morbi leo risus</li>
+            <li class="list-group-item">Porta ac consectetur ac</li>
+            <li class="list-group-item">Vestibulum at eros</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  // Send data
+  socket.emit("userLogin", {
+    name: `<%= user.name %>`,
+    room: `dashboard`,
+  });
+
+  // get data users online
+  socket.on("onlineUsers", ({ users }) => {
+    getOnlineUsers(users);
+  });
+
+  function getOnlineUsers(users) {
+    const listUsers = users
+      .filter((u) => u.name != `<%= user.name %>`)
+      .map((user) => {
+        return `
+      <div class="card-chat">
+        <h5>
+          ${user.name}
+          <span class="personelMessage">1</span>
+        </h5>
+      </div>
+      `;
+      })
+      .join("");
+
+    document.querySelector(".onlineUsers").innerHTML = listUsers;
+  }
+
+  const profilePicture = document.getElementById("profile-picture");
+  profilePicture.style.cursor = "pointer";
+
+  const uploadProfilePicture = document.getElementById("uploadProfilePicture");
+
+  profilePicture.addEventListener("click", (e) => {
+    uploadProfilePicture.click();
+  });
+
+  uploadProfilePicture.addEventListener("change", function (e) {
+    this.form.submit();
+  });
+</script>

@@ -39,6 +39,7 @@ const {
     ignoreQueryPrefix: true
 });
 
+
 // Join chatRoom
 socket.emit('joinRoom', {
     email,
@@ -64,7 +65,6 @@ function outputRoomName(room) {
 
 // Menambahkan users ke card
 function outputUsers(users) {
-
     const listUser = users.map(user => `<li>${user.email}</li>`).join('');
     return userList.innerHTML = listUser;
 }

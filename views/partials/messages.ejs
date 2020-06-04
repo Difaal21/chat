@@ -27,4 +27,11 @@
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
+<% } %> <% if(typeof msg_profile_picture != 'undefined') { %>
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong> <%= msg_profile_picture %> </strong>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 <% } %>

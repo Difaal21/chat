@@ -5,11 +5,12 @@
         <h1 class="text-center mb-3">
           <i class="fas fa-sign-in-alt"></i> Login
         </h1>
-        <%- include('partials/messages') %>
+        <%- include('../partials/messages') %>
         <form action="/users/login" method="POST">
           <div class="form-group">
             <label for="email">Email</label>
             <input
+              autocomplete="email"
               type="email"
               id="email"
               name="email"
@@ -20,6 +21,7 @@
           <div class="form-group">
             <label for="password">Password</label>
             <input
+              autocomplete="current-password"
               type="password"
               id="password"
               name="password"

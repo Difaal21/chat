@@ -1,5 +1,0 @@
-install package-json
-    1. npm init -y
-    2. npm i bcryptjs connect-flash ejs express express-ejs-layouts express-session mongoose passport passport-local moment socket.io
-    3. npm i -D nodemon
-Lihat Depedensi untuk lebih detailnya

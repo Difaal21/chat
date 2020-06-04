@@ -7,14 +7,13 @@ function userJoin(id, email, room) {
         email,
         room
     };
-
     users.push(user);
     return user;
 }
 
 // Dapatkan user yang ngirim pesan
 function getCurrentUser(id) {
-    return users.find(user => user.id === id)
+    return users.find(user => user.id === id);
 }
 
 // User meninggalkan chat
@@ -26,7 +25,7 @@ function userLeave(id) {
     }
 }
 
-// Room user
+// Room user : get All Users in room
 function getRoomUsers(room) {
     return users.filter(user => user.room === room);
 }
@@ -35,5 +34,5 @@ module.exports = {
     userJoin,
     getCurrentUser,
     getRoomUsers,
-    userLeave
+    userLeave,
 };

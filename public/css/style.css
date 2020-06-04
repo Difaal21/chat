@@ -179,6 +179,28 @@ a {
     width: 100%;
 }
 
+.personelMessage {
+    font-size: 12px;
+    border-radius: 20%;
+    vertical-align: super;
+    background-color: #EB6864;
+    padding: 3px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.card-chat {
+    margin: 2px;
+    padding: 8px;
+    border: 1px solid rgb(224, 224, 224);
+    border-radius: 4%;
+    text-align: center;
+}
+
+.card-chat h5 {
+    margin-bottom: 0px;
+}
+
 @media (max-width: 700px) {
     .chat-main {
         display: block;
