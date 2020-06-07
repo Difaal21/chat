@@ -7,11 +7,15 @@
           <div class="col-md-8">
             <div class="row">
               <div class="col-md-auto">
-                <img class="border border-white" id="profile-picture"
-                width="120px" height="120px" style="object-fit: cover;" <%
-                if(user.profilePicturePath === undefined) { %> src="<%=
-                user.default_picture %>" <% } else { %> src="<%=
-                user.profilePicturePath %>" <% } %> alt="Foto Profile" srcset=""
+                <img
+                  class="border border-white"
+                  id="profile-picture"
+                  width="120px"
+                  height="120px"
+                  style="object-fit: cover;"
+                  src="<%- include('./partials/defaultPicture') %>"
+                  alt="Foto Profile"
+                  srcset=""
                 />
                 <form
                   action="/dashboard"
@@ -82,24 +86,18 @@
       <div class="card mb-3">
         <h3 class="card-header">Online Users</h3>
         <div class="card-body" style="overflow-y: auto; height: 257px;">
-          <div class="row justify-content-center">
-            <button
-              type="button"
-              class="btn onlineUsers"
-              data-toggle="modal"
-              data-target="#exampleModal"
-            ></button>
-          </div>
+          <div class="onlineUsers row justify-content-center"></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Modal Profile -->
 <div class="modal-dialog modal-dialog-scrollable">
   <div
     class="modal fade"
-    id="exampleModal"
+    id="modalProfile"
     tabindex="-1"
     role="dialog"
     aria-labelledby="exampleModalLabel"
@@ -119,20 +117,72 @@
           </button>
         </div>
         <div class="modal-body">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">Nama</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
+          <ul class="list-group list-group-flush user-profile">
+            <!-- Data User -->
           </ul>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          <button
+            type="button"
+            class="btn-close-profile btn btn-secondary"
+            data-dismiss="modal"
+          >
             Close
           </button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <button
+            type="button"
+            data-toggle="modal"
+            data-target="#modal-chat"
+            class="btn-chat-user btn btn-primary"
+          >
+            Chat
+          </button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Chat -->
+<div class="modal-dialog modal-dialog-scrollable">
+  <div
+    class="modal fade"
+    id="modal-chat"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      kirim
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Chat</h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="chat-form">
+          <div class="chat-messages" style="height: 250px;"></div>
+          <div class="modal-footer">
+            <input
+              id="msg"
+              class="form-control mx-auto col-md-8"
+              type="text"
+              placeholder="Enter Message"
+              required
+              autocomplete="off"
+            />
+            <button class="btn-chat col-md-3" id="">
+              <i class="fas fa-paper-plane"></i> Send
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -142,28 +192,103 @@
 <script>
   const socket = io();
 
+  const btnChat = document.querySelector(".btn-chat-user");
+  const btnCloseProfile = document.querySelector(".btn-close-profile");
+
+  // Close modal profile if user click btn Chat
+  btnChat.addEventListener("click", (e) => {
+    btnCloseProfile.click();
+  });
+
   // Send data
   socket.emit("userLogin", {
+    userId: `<%= user.id %>`,
     name: `<%= user.name %>`,
     room: `dashboard`,
   });
 
   // get data users online
   socket.on("onlineUsers", ({ users }) => {
-    getOnlineUsers(users);
+    const userLogin = users.filter((data) => data.userId == `<%= user.id %>`);
+    const listUsers = users.filter((data) => data.userId != `<%= user.id %>`);
+
+    getOnlineUsers(listUsers);
+
+    const elOnlineUsers = document.querySelectorAll(".modalProfile");
+
+    elOnlineUsers.forEach((cardUserOnline) => {
+      cardUserOnline.addEventListener("click", (e) => {
+        const userTargetId = cardUserOnline.firstChild.nextSibling.innerText;
+
+        const dataUserTarget = listUsers.filter(
+          (data) => data.userId === userTargetId
+        );
+
+        modalUserProfile(dataUserTarget[0]);
+
+        socket.emit("privateMessage", {
+          userTarget: dataUserTarget[0],
+          me: userLogin[0],
+        });
+
+        const btnSendChat = document.querySelector("#chat-form");
+
+        const chatMessage = document.querySelector(".chat-messages");
+
+        btnSendChat.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const msg = e.target.elements.msg.value;
+
+          socket.emit("chatMessage", msg);
+
+          outputMessage({ name: userLogin[0].name, text: msg });
+
+          e.target.elements.msg.value = "";
+
+          e.target.elements.msg.focus();
+        });
+      });
+    });
   });
 
+  socket.on("bubbleChat", (message) => {
+    outputMessage(message);
+  });
+
+  function outputMessage(message) {
+    const chatMessage = document.querySelector(".chat-messages");
+
+    // Membaat elemen div
+    const div = document.createElement("div");
+
+    // Menambahkan class message
+    div.classList.add("message");
+
+    // Bubble pada room chat
+    div.innerHTML = `
+    <p class="meta">${message.name}<span>20:31 pm</span></p>
+    <p class="text">
+        ${message.text}
+        </p>
+        `;
+
+    // Menambahkan bubble chat
+    document.querySelector(".chat-messages").appendChild(div);
+    chatMessage.scrollTop = chatMessage.scrollHeight;
+  }
+
+  // Show online users
   function getOnlineUsers(users) {
     const listUsers = users
-      .filter((u) => u.name != `<%= user.name %>`)
       .map((user) => {
         return `
-      <div class="card-chat">
-        <h5>
-          ${user.name}
-          <span class="personelMessage">1</span>
-        </h5>
-      </div>
+          <div class="card-chat modalProfile" data-toggle="modal" data-target="#modalProfile">
+            <span id="userTarget" hidden>${user.userId}</span>
+            <h5>
+              ${user.name}
+              <span class="personelMessage">1</span>
+            </h5>
+          </div>
       `;
       })
       .join("");
@@ -183,4 +308,16 @@
   uploadProfilePicture.addEventListener("change", function (e) {
     this.form.submit();
   });
+
+  const ulUserProfile = document.querySelector(".user-profile");
+
+  function modalUserProfile(user) {
+    const profileUsers = `<li class="list-group-item">Name : ${user.name}</li>`;
+
+    ulUserProfile.innerHTML = profileUsers;
+  }
+
+  // function dataUserTarget(){
+
+  // }
 </script>

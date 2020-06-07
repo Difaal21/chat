@@ -3,9 +3,7 @@ const express = require("express"),
   path = require("path"),
   multer = require("multer"),
   fs = require("fs");
-const {
-  ensureAuthenticated
-} = require("../config/auth");
+const { ensureAuthenticated } = require("../config/auth");
 const User = require("../models/User");
 const DefaultPicture = require("../models/DefaultPicture");
 
@@ -20,18 +18,15 @@ router.get("/dashboard", ensureAuthenticated, async (req, res) => {
     const user = req.user;
 
     if (user.profilePicturePath == undefined) {
-      const getDefaultPicture = await DefaultPicture.find().exec()
-      const test = getDefaultPicture[0].default_picture.toString("base64")
-      user.default_picture = `data:image/jpg;charset=utf-8;base64,${test}`
+      const getDefaultPicture = await DefaultPicture.find().exec();
+      const test = getDefaultPicture[0].default_picture.toString("base64");
+      user.default_picture = `data:image/jpg;charset=utf-8;base64,${test}`;
     }
 
     res.render("dashboard", {
       user: user,
     });
-
-  } catch (error) {
-
-  }
+  } catch (error) {}
 });
 
 // Chat page
@@ -53,7 +48,7 @@ router.get("/chat", ensureAuthenticated, (req, res) => {
     );
   },
 }); */
-const storage = multer.memoryStorage()
+const storage = multer.memoryStorage();
 
 // Initialize upload
 const upload = multer({
@@ -63,7 +58,7 @@ const upload = multer({
   },
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
-  }
+  },
 }).single("profilePicture");
 
 function checkFileType(file, cb) {
@@ -79,15 +74,13 @@ function checkFileType(file, cb) {
   if (mimeType && extName) {
     return cb(null, true);
   }
-  return cb('Error : Images Only');
+  return cb("Error : Images Only");
 }
 
 router.post("/dashboard", ensureAuthenticated, (req, res) => {
-
   const user = req.user;
 
   upload(req, res, (err) => {
-
     if (err) {
       req.flash("msg_picture", err);
       return res.render("dashboard", {
@@ -109,30 +102,30 @@ router.post("/dashboard", ensureAuthenticated, (req, res) => {
         user: result,
       });
     });
-
   });
 });
 
-const imageMimeTypes = ['image/jpeg', 'image/png', 'image/jpg']
+const imageMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
 
 async function saveImage(user, image) {
-
   if (image != null && imageMimeTypes.includes(image.mimetype)) {
     try {
-      await User.updateOne({
-        _id: user._id,
-      }, {
-        $set: {
-          profile_picture: new Buffer.from(image.buffer, 'base64'),
-          picture_type: image.mimetype
+      await User.updateOne(
+        {
+          _id: user._id,
         },
-      }).exec()
+        {
+          $set: {
+            profile_picture: new Buffer.from(image.buffer, "base64"),
+            picture_type: image.mimetype,
+          },
+        }
+      ).exec();
     } catch (error) {
       console.error(err);
     }
   }
 }
-
 
 /* function removeOldPicture(user) {
   fs.unlink("./public/profile_picture/" + user.profile_picture, function (
@@ -141,7 +134,5 @@ async function saveImage(user, image) {
     if (err) console.error(err);
   });
 } */
-
-
 
 module.exports = router;
